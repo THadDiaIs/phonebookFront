@@ -46,8 +46,9 @@ const App = () => {
             setNotificationMsg([`${updated.name} has updated.`,false])
           })
           .catch(error => {
+            console.log('updating error',error)
             setNotificationMsg([`cant update has the contact, may be it actually does not exist on phonebook. please try again later.`,true])
-            setPersons(persons.filter(prsn => prsn.name != toUpdate.name))
+            //setPersons(persons.filter(prsn => prsn.name != toUpdate.name))
           })
         resetInputs()
       }
