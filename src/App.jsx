@@ -3,9 +3,7 @@ import Contacts from "./components/Contacts.jsx"
 import NewPerson from "./components/NewPerson.jsx"
 import Input from "./components/Input.jsx"
 import Notif from "./components/Notif.jsx"
-import personsService from "./services/personsService"
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import personsService from "./services/personsService.js"
 import './App.css'
 
 
@@ -16,12 +14,12 @@ const App = () => {
   const [showingFilter, setFilter] = useState("")
   //first element is the msg and the second is a bool to  tell if its a warn or nfo msg
   const [notificationMsg, setNotificationMsg] = useState([null,true])
-  const notifTime = 4000
+  const notifTime = 5000
 
   useEffect(()=>{
     personsService.getAll()
       .then(personsList => setPersons(personsList))
-      .catch(error => alert('Error we can retrive data from server'))
+      .catch(error => alert('Error we cannot retrive data from server'))
   },[])
 
   let resetInputs = () => {
@@ -35,7 +33,8 @@ const App = () => {
 
   let addNewName = (e) => {
     e.preventDefault()
-    let toUpdate = persons.filter(person => person.name === newName)
+    let toUpdate = persons.filter(person => person.name.toLowerCase() === newName.toLowerCase())
+
     if (toUpdate.length > 0) {
       toUpdate = {...toUpdate[0], number: newNumber}
       if (window.confirm(`${newName} alaready exist on phonebook,
@@ -46,8 +45,7 @@ const App = () => {
             setNotificationMsg([`${updated.name} has updated.`,false])
           })
           .catch(error => {
-            console.log('updating error',error)
-            setNotificationMsg([`cant update has the contact, may be it actually does not exist on phonebook. please try again later.`,true])
+            setNotificationMsg([`${error.dara.error}`,true])
             //setPersons(persons.filter(prsn => prsn.name != toUpdate.name))
           })
         resetInputs()
@@ -58,7 +56,10 @@ const App = () => {
           setPersons([...persons].concat(created))
           setNotificationMsg([`${created.name} contact has added to your phonebook.`,false])
         })
-        .catch(error => setNotificationMsg([`contact cannot be created.`,true]))
+        .catch(error => {
+          console.log(error,"crating errror");
+          setNotificationMsg([`${error.response.data.error}`,true])
+        })
       resetInputs()
     }
     setTimeout(() => setNotificationMsg(["",false]),notifTime)
@@ -69,12 +70,11 @@ const App = () => {
     if (window.confirm(`Sure to delete ${deleting.name}?.`)){
       personsService.deletePerson(idToDelete)
         .then(deleted => {
-          console.log("deleted",deleted)
           setPersons(persons.filter(prsn => prsn.id != idToDelete))
           setNotificationMsg([`${deleting.name} has been deleted.`,true])
           setTimeout(() => setNotificationMsg(""),notifTime)
         })
-        .catch(error => setNotificationMsg([`contact cannot be deleted, try again later.`,true]))
+        .catch(error => setNotificationMsg([error.response.data.error,true]))
       }
     }
 
@@ -85,7 +85,7 @@ const App = () => {
         <Input label="Filter shown with: " onInput={setFilter} value={showingFilter} />
       <h2>Add new contact</h2>
         <NewPerson onChangeName={setNewName} name={newName} onChangeNumber={setNewNumber} number={newNumber} onClick={addNewName}/>
-      <h2>Numbers</h2>
+       <h2>Numbers</h2>
       <Contacts contacts={showingPersons} deletePerson={deletePerson} />
     </div>
   )

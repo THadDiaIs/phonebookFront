@@ -1,4 +1,4 @@
-import Contact from "./Contact"
+import Contact from "./Contact.jsx"
 
 const Contacts = ({ contacts, deletePerson }) => {
     if (contacts.length > 0) {

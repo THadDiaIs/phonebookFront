@@ -12,7 +12,6 @@ const createNew = (newPerson) => {
 }
 
 const deletePerson = (id) => {
-    console.log("id",id)
     return axios.delete(`${baseURL}/${id}`).then(response => response.data)
 }
 
